@@ -19,6 +19,8 @@ draw::draw(){
         return;
     if (!endFont.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/Minecraft.ttf"))
         return;
+    if(!blinky.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/Blinky.jpg"))
+        return;
     endText.setFont(endFont);
     endText.setPosition(300,263);
     endText.setColor(sf::Color::White);
@@ -28,7 +30,7 @@ draw::draw(){
 
 void draw::gameDraw(const modify *level, sf::RenderWindow &mainWindow){
     drawMap(mainWindow, level->loadedMap, false);
-    
+    drawGhost(mainWindow, level->ghostX, level->ghostY);
     drawPac(mainWindow, level->pacX, level->pacY, level->pacDirection, level->switchPac, level->pacOpen);
 }
 
@@ -42,11 +44,11 @@ void draw::drawMap(sf::RenderWindow &mainWindow, const char (&loadedMap)[20][20]
     for(int j = 0; j < 20; j++){
         for(int i = 0; i < 20; i++){
             if(loadedMap[i][j] == '1')
-                this->wallType(i, j, loadedMap, mainWindow);
+                wallType(i, j, loadedMap, mainWindow);
             else if(loadedMap[i][j] == '3' && !gameOver)
-                this->drawPebble(mainWindow, i, j);
+                drawPebble(mainWindow, i, j);
             else if(loadedMap[i][j] == '4' && !gameOver)
-                this->drawPower(mainWindow, i, j);
+                drawPower(mainWindow, i, j);
         }
     }
 }
@@ -76,7 +78,7 @@ void draw::drawPac(sf::RenderWindow &mainWindow, const int pacX, const int pacY,
         PacMan.setPosition(100+pacX, pacY+30);
     }
     else if(pacDirection[1]){
-        PacMan.setPosition(100 + pacX, pacY);
+        PacMan.setPosition(100+pacX, pacY);
     }
     else if(pacDirection[2]){
         PacMan.rotate(270);
@@ -85,9 +87,16 @@ void draw::drawPac(sf::RenderWindow &mainWindow, const int pacX, const int pacY,
     }
     else{
         PacMan.scale(-1,1);
-        PacMan.setPosition(130 + pacX, pacY);
+        PacMan.setPosition(130+pacX, pacY);
     }
     mainWindow.draw(PacMan);
+}
+
+void draw::drawGhost(sf::RenderWindow &mainWindow, const int ghostX, const int ghostY){
+    sf::Sprite Blinky;
+    Blinky.setTexture(blinky);
+    Blinky.setPosition(100+ghostX, ghostY);
+    mainWindow.draw(Blinky);
 }
 
 //WALL/////////////////////////////////////////////////////////////////////////

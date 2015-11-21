@@ -22,6 +22,12 @@ public:
     bool win;
     float pacX;
     float pacY;
+    float ghostX;
+    float ghostY;
+    float ggoalX;
+    float ggoalY;
+    int pastDirection; //1=N,2=E...
+    int goalDirection;
     int score;
     sf::Time elapsedTime;
     bool pacDirection[4];
@@ -30,9 +36,14 @@ public:
 
     
 private:
-    void movePac(char* direction, float& pac_x, float& pac_y);
+    void movePac(char* direction);
     void PacAction();
+    void GhostAction();
     void checkLevel();
+    
+    bool isIntersection();
+    int findOpenSpace();
+    void moveGhost();
     
     char direction[1];
     std::ifstream pacLevel;
@@ -40,6 +51,7 @@ private:
     const int speed = 1;
     int levelNumber;
     bool moveRight, moveLeft, moveUp, moveDown;
+//    bool atIntersection = false;
 };
 
 #endif /* defined(__PacFinal__modify__) */

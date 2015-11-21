@@ -20,7 +20,13 @@ modify::modify(){
                 pacX = 30*i;
                 pacY = 30*j;
             }
+            
+            if(loadedMap[j][i]=='X'){
+                ghostX = 30*i;
+                ghostY = 30*j;
+            }
         }
+    pastDirection = 1;
     levelNumber = 0;
     score = 0;
     switchPac = 0;
@@ -34,8 +40,9 @@ modify::modify(){
 }
 
 void modify::gameModify(){
-    this->PacAction();
-    this->checkLevel();
+    PacAction();
+    GhostAction();
+    checkLevel();
 }
 
 void modify::PacAction(){
@@ -65,27 +72,112 @@ void modify::PacAction(){
     else
         direction[0] = 'n';
     
-    this->movePac(direction, pacX, pacY);
+    movePac(direction);
 }
 
-void modify::movePac(char*direction, float& pac_x, float& pac_y){
+void modify::GhostAction(){
+    bool intersection = isIntersection();
+    if(!intersection){
+        pastDirection = findOpenSpace();
+//        if(intersection)
+//            atIntersection = false;
+    }
+    else{
+        ggoalX = pacX+15;
+        ggoalY = pacY+15;
+        
+        if(ggoalX-ghostX >= 0 && ggoalY-ghostY <= 0){ //top right
+            //deterimne to go up
+            if(ggoalX-ghostX < -(ggoalY-ghostY) && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+4)/30]!='1' && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+26)/30]!='1' && pastDirection!=3){
+                pastDirection = 1;
+            }
+            else if(ggoalX-ghostX > -(ggoalY-ghostY) && loadedMap[(int)(ghostY+1)/30][(int)(ghostX+31)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX+31)/30]!='1' && pastDirection!=4){
+                pastDirection = 2;
+            }
+            else
+                pastDirection = findOpenSpace();
+        }
+        
+        else if(ggoalX-ghostX >= 0 && ggoalY-ghostY > 0){ //bottom right
+            if(ggoalX-ghostX < ggoalY-ghostY && loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+31)/30][(int)(ghostX+29)/30]!='1' && pastDirection!='1'){
+                pastDirection = 3;
+            }
+            else if(ggoalX-ghostX > ggoalY-ghostY && loadedMap[(int)(ghostY)/30][(int)(ghostX+31)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX+31)/30]!='1' && pastDirection!=4){
+                pastDirection = 2;
+            }
+            else
+                pastDirection = findOpenSpace();
+        }
+        
+        else if(ggoalX-ghostX < 0 && ggoalY-ghostY <= 0){ //top left
+            if(-(ggoalX-ghostX) < -(ggoalY-ghostY) && loadedMap[(int)(ghostY-1)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=3){
+                pastDirection = 1;
+            }
+            else if(-(ggoalX-ghostX) > -(ggoalY-ghostY) && loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30]!='1' && pastDirection!=2){
+                pastDirection = 4;
+            }
+            else
+                pastDirection = findOpenSpace();
+        }
+        
+        else{ //bottom left
+            if(-(ggoalX-ghostX) < ggoalY-ghostY && loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+31)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=1){
+                pastDirection = 3;
+            }
+            else if(-(ggoalX-ghostX) > ggoalY-ghostY && loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30]!='1' && pastDirection!=2){
+                pastDirection = 4;
+            }
+            else
+                pastDirection = findOpenSpace();
+            
+        }
+    //    atIntersection = true;
+    }
+    moveGhost();
+}
+
+bool modify::isIntersection(){
+    int i = 0;
+    if(loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY+31)/30][(int)(ghostX+29)/30]=='1')
+        i++;
+    if(loadedMap[(int)(ghostY-1)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY-1)/30][(int)(ghostX+29)/30]=='1')
+        i++;
+    if(loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]=='1' || loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30-1]=='1')
+        i++;
+    if(loadedMap[(int)(ghostY)/30][(int)(ghostX+31)/30]=='1' || loadedMap[(int)(ghostY+29)/30][(int)(ghostX+31)/30]=='1')
+        i++;
+    return i < 2;
+}
+
+int modify::findOpenSpace(){
+    if(loadedMap[(int)(ghostY-1)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=3)
+        return 1;
+    else if(loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+31)/30+1][(int)(ghostX+29)/30]!='1' && pastDirection!=1)
+        return 3;
+    else if(loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30-1]!='1' && pastDirection!=2)
+        return 4;
+    else
+        return 2;
+}
+           
+void modify::movePac(char* direction){
     
-    if((loadedMap[((int)pac_y-1)/30][((int)pac_x+4)/30]=='1' || loadedMap[((int)pac_y-1)/30][((int)pac_x+26)/30]=='1'))
+    if((loadedMap[((int)pacY-1)/30][((int)pacX+4)/30]=='1' || loadedMap[((int)pacY-1)/30][((int)pacX+26)/30]=='1'))
         moveUp = false;
     else
         moveUp = true;
     
-    if(loadedMap[((int)pac_y+31)/30][((int)pac_x+4)/30]=='1' || loadedMap[((int)pac_y+31)/30][((int)pac_x+26)/30]=='1')
+    if(loadedMap[((int)pacY+31)/30][((int)pacX+4)/30]=='1' || loadedMap[((int)pacY+31)/30][((int)pacX+26)/30]=='1')
         moveDown = false;
     else
         moveDown = true;
     
-    if(loadedMap[((int)pac_y+4)/30][((int)pac_x-1)/30]=='1' || loadedMap[((int)pac_y+26)/30][((int)pac_x-1)/30]=='1')
+    if(loadedMap[((int)pacY+4)/30][((int)pacX-1)/30]=='1' || loadedMap[((int)pacY+26)/30][((int)pacX-1)/30]=='1')
         moveLeft = false;
     else
         moveLeft = true;
     
-    if(loadedMap[((int)pac_y+4)/30][((int)pac_x+31)/30]=='1' || loadedMap[((int)pac_y+26)/30][((int)pac_x+31)/30]=='1')
+    if(loadedMap[((int)pacY+4)/30][((int)pacX+31)/30]=='1' || loadedMap[((int)pacY+26)/30][((int)pacX+31)/30]=='1')
         moveRight = false;
     else
         moveRight = true;
@@ -93,19 +185,19 @@ void modify::movePac(char*direction, float& pac_x, float& pac_y){
     float speedFrame = ((int)elapsedTime.asMicroseconds()/1000)/5.0;
     
     if(direction[0] == 'u' && moveUp){
-        pac_y -=(speed*speedFrame);
+        pacY -=(speed*speedFrame);
         switchPac++;
     }
     else if(direction[0] == 'd' && moveDown){
-        pac_y +=(speed*speedFrame);
+        pacY +=(speed*speedFrame);
         switchPac++;
     }
     else if(direction[0] == 'r' && moveRight){
-        pac_x +=(speed*speedFrame);
+        pacX +=(speed*speedFrame);
         switchPac++;
     }
     else if(direction[0] == 'l' && moveLeft){
-        pac_x -=(speed*speedFrame);
+        pacX -=(speed*speedFrame);
         switchPac++;
     }
     
@@ -114,33 +206,48 @@ void modify::movePac(char*direction, float& pac_x, float& pac_y){
         switchPac = 0;
     }
 
-    if(loadedMap[((int)pac_y+10)/30][((int)pac_x+10)/30]=='3'){
-        loadedMap[((int)pac_y+10)/30][((int)pac_x+10)/30]='0';
+    if(loadedMap[((int)pacY+10)/30][((int)pacX+10)/30]=='3'){
+        loadedMap[((int)pacY+10)/30][((int)pacX+10)/30]='0';
         score+=100;
     }
-    if(loadedMap[((int)pac_y+20)/30][((int)pac_x+10)/30]=='3'){
-        loadedMap[((int)pac_y+20)/30][((int)pac_x+10)/30]='0';
+    if(loadedMap[((int)pacY+20)/30][((int)pacX+10)/30]=='3'){
+        loadedMap[((int)pacY+20)/30][((int)pacX+10)/30]='0';
         score+=100;
     }
-    if(loadedMap[((int)pac_y+20)/30][((int)pac_x+20)/30]=='3'){
-        loadedMap[((int)pac_y+20)/30][((int)pac_x+20)/30]='0';
+    if(loadedMap[((int)pacY+20)/30][((int)pacX+20)/30]=='3'){
+        loadedMap[((int)pacY+20)/30][((int)pacX+20)/30]='0';
         score+=100;
     }
-    if(loadedMap[((int)pac_y+10)/30][((int)pac_x+20)/30]=='3'){
-        loadedMap[((int)pac_y+10)/30][((int)pac_x+20)/30]='0';
+    if(loadedMap[((int)pacY+10)/30][((int)pacX+20)/30]=='3'){
+        loadedMap[((int)pacY+10)/30][((int)pacX+20)/30]='0';
         score+=100;
     }
     
 }
 
+void modify::moveGhost(){
+    float speedFrame = ((int)elapsedTime.asMicroseconds()/1000)/5.0/1.2;
+    if(pastDirection == 1)
+        ghostY-=(speed*speedFrame);
+    else if(pastDirection == 2)
+        ghostX+=(speed*speedFrame);
+    else if(pastDirection == 3)
+        ghostY+=(speed*speedFrame);
+    else
+        ghostX-=(speed*speedFrame);
+}
+
 void modify::checkLevel(){
-    this->win = true;
-    for (int j=1; j<21; j++)
-        for (int i=1; i<21; i++)
-        {
-            if(this->loadedMap[i][j]=='3')
-                this->win = false;
-        }
+    win = true;
+//    if((int)ghostX/30 == (int)pacX/30 && (int)ghostY/30 == (int)pacY/30)
+//        win = false;
+//    else
+        for (int j=1; j<21; j++)
+            for (int i=1; i<21; i++)
+            {
+                if(this->loadedMap[i][j]=='3')
+                    win = false;
+            }
 }
 
 void modify::modifyLevel(){
