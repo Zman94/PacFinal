@@ -30,8 +30,8 @@ draw::draw(){
 
 void draw::gameDraw(const modify *level, sf::RenderWindow &mainWindow){
     drawMap(mainWindow, level->loadedMap, false);
-    drawGhost(mainWindow, level->ghostX, level->ghostY);
     drawPac(mainWindow, level->pacX, level->pacY, level->pacDirection, level->switchPac, level->pacOpen);
+    drawGhost(mainWindow, level->ghostX, level->ghostY, level);
 }
 
 void draw::drawGameOver(const modify* level, sf::RenderWindow &mainWindow){
@@ -92,10 +92,25 @@ void draw::drawPac(sf::RenderWindow &mainWindow, const int pacX, const int pacY,
     mainWindow.draw(PacMan);
 }
 
-void draw::drawGhost(sf::RenderWindow &mainWindow, const int ghostX, const int ghostY){
+void draw::drawGhost(sf::RenderWindow &mainWindow, const int ghostX, const int ghostY, const modify *level){
     sf::Sprite Blinky;
     Blinky.setTexture(blinky);
-    Blinky.setPosition(100+ghostX, ghostY);
+    if(level->pastDirection==3){
+        Blinky.rotate(270);
+        Blinky.setPosition(100+ghostX, ghostY+30);
+    }
+    else if(level->pastDirection==4){
+        Blinky.setPosition(100+ghostX, ghostY);
+    }
+    else if(level->pastDirection==1){
+        Blinky.rotate(270);
+        Blinky.scale(-1,1);
+        Blinky.setPosition(100+ghostX, ghostY);
+    }
+    else{
+        Blinky.scale(-1,1);
+        Blinky.setPosition(130+ghostX, ghostY);
+    }
     mainWindow.draw(Blinky);
 }
 

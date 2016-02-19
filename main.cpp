@@ -8,3 +8,5 @@ int main(int argc, char** argv)
     
     return 0;
 }
+
+/***********        Bug: Ghost runs through pac up and down         **********/

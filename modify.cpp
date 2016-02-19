@@ -5,8 +5,9 @@
 //  Created by Zach Gleason on 10/6/15.
 //  Copyright (c) 2015 Zach Gleason. All rights reserved.
 //
-
+//Past direction goes from up clockwise around starting at 1
 #include "modify.h"
+#include <ctime>
 
 modify::modify(){
     pacLevel.open("/Users/Zach/Projects/PacFinal/PacFinal/myLevel1.txt");
@@ -75,86 +76,131 @@ void modify::PacAction(){
     movePac(direction);
 }
 
+void modify::newDirection(){
+    if((loadedMap[(int)(ghostY+29)/30][(int)(ghostX)/30]!='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX)/30]!='1')&&pastDirection!=4)
+        pastDirection=4;
+    if((loadedMap[(int)(ghostY+29)/30][(int)(ghostX+29)/30]!='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX+29)/30]!='1')&&pastDirection!=2)
+        pastDirection=2;
+    if((loadedMap[(int)(ghostY)/30][(int)(ghostX)/30]!='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX+29)/30-1]!='1')&&pastDirection!=1)
+        pastDirection=1;
+    if((loadedMap[(int)(ghostY+29)/30][(int)(ghostX+29)/30]=='1' || loadedMap[(int)(ghostY+29)/30][(int)(ghostX)/30]=='1')&&pastDirection!=3)
+        pastDirection=3;
+
+}
+
 void modify::GhostAction(){
-    bool intersection = isIntersection();
-    if(!intersection){
-        pastDirection = findOpenSpace();
-//        if(intersection)
-//            atIntersection = false;
+    bool straight = isStraight(); //determines whether or not it can keep going straight (has a top and bottom)
+                                  //If the ghost doesn't have to go straight, it must be at an intersection or a corner
+    //bool intersection = isIntersection(); **Read description at function***
+    if(!straight && !atIntersection)
+    /*
+    else if(!intersection){
+        if(pastDirection==1){
+            if(loadedMap[(int)(ghostY)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX+29)/30]=='1')
+                newDirection();
+        }
+        if(pastDirection==2){
+            if(loadedMap[(int)(ghostY+29)/30][(int)(ghostX+29)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX+29)/30]=='1')
+                newDirection();
+        }
+        if(pastDirection==3){
+            if(loadedMap[(int)(ghostY+29)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY+29)/30][(int)(ghostX+29)/30-1]=='1')
+                newDirection();
+        }
+        else{
+            if(loadedMap[(int)(ghostY+29)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX)/30]=='1')
+                newDirection();
+        }
     }
-    else{
+    */
+    {
         ggoalX = pacX+15;
         ggoalY = pacY+15;
         
         if(ggoalX-ghostX >= 0 && ggoalY-ghostY <= 0){ //top right
             //deterimne to go up
-            if(ggoalX-ghostX < -(ggoalY-ghostY) && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+4)/30]!='1' && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+26)/30]!='1' && pastDirection!=3){
-                pastDirection = 1;
+            if(ggoalX-ghostX < -(ggoalY-ghostY) && ggoalY-ghostY > 25 && loadedMap[(int)(ghostY-5)/30][(int)(ghostX+1)/30]!='1' && loadedMap[(int)(ghostY-5)/30][(int)(ghostX+28)/30]!='1' && pastDirection!=3){
+                pastDirection = 1;  //Going up
             }
-            else if(ggoalX-ghostX > -(ggoalY-ghostY) && loadedMap[(int)(ghostY+1)/30][(int)(ghostX+31)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX+31)/30]!='1' && pastDirection!=4){
-                pastDirection = 2;
+            else if(loadedMap[(int)(ghostY+1)/30][(int)(ghostX+35)/30]!='1' && loadedMap[(int)(ghostY+28)/30][(int)(ghostX+35)/30]!='1' && pastDirection!=4){
+                pastDirection = 2; //Going right
             }
             else
                 pastDirection = findOpenSpace();
         }
         
         else if(ggoalX-ghostX >= 0 && ggoalY-ghostY > 0){ //bottom right
-            if(ggoalX-ghostX < ggoalY-ghostY && loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+31)/30][(int)(ghostX+29)/30]!='1' && pastDirection!='1'){
-                pastDirection = 3;
+            if(ggoalX-ghostX < ggoalY-ghostY && ggoalY-ghostY > 25 && loadedMap[(int)(ghostY+35)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+35)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=1){
+                pastDirection = 3; //Going down
             }
-            else if(ggoalX-ghostX > ggoalY-ghostY && loadedMap[(int)(ghostY)/30][(int)(ghostX+31)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX+31)/30]!='1' && pastDirection!=4){
-                pastDirection = 2;
+            else if(loadedMap[(int)(ghostY)/30][(int)(ghostX+35)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX+35)/30]!='1' && pastDirection!=4){
+                pastDirection = 2; //Going right
             }
             else
                 pastDirection = findOpenSpace();
         }
         
         else if(ggoalX-ghostX < 0 && ggoalY-ghostY <= 0){ //top left
-            if(-(ggoalX-ghostX) < -(ggoalY-ghostY) && loadedMap[(int)(ghostY-1)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=3){
-                pastDirection = 1;
+            if(ggoalX-ghostX < -(ggoalY-ghostY) && ggoalY-ghostY > 25 && loadedMap[(int)(ghostY-5)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY-5)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=3){
+                pastDirection = 1; //Going up
             }
-            else if(-(ggoalX-ghostX) > -(ggoalY-ghostY) && loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30]!='1' && pastDirection!=2){
-                pastDirection = 4;
+            else if(loadedMap[(int)(ghostY+1)/30][(int)(ghostX-5)/30]!='1' && loadedMap[(int)(ghostY+28)/30][(int)(ghostX-5)/30]!='1' && pastDirection!=2){
+                pastDirection = 4; //Going left
             }
             else
                 pastDirection = findOpenSpace();
         }
         
         else{ //bottom left
-            if(-(ggoalX-ghostX) < ggoalY-ghostY && loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+31)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=1){
-                pastDirection = 3;
+            if(ggoalX-ghostX < ggoalY-ghostY && ggoalY-ghostY > 25 && loadedMap[(int)(ghostY+35)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+35)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=1){
+                pastDirection = 3; //Going down
             }
-            else if(-(ggoalX-ghostX) > ggoalY-ghostY && loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30]!='1' && pastDirection!=2){
-                pastDirection = 4;
+           else if(loadedMap[(int)(ghostY)/30][(int)(ghostX-5)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX-5)/30]!='1' && pastDirection!=2){
+                pastDirection = 4; //Going left
             }
             else
                 pastDirection = findOpenSpace();
             
         }
-    //    atIntersection = true;
+        atIntersection = true;
     }
+    
     moveGhost();
 }
 
-bool modify::isIntersection(){
+bool modify::isStraight(){
+    atIntersection=false;
+    if(pastDirection==2 || pastDirection==4){
+        if((loadedMap[(int)(ghostY+35)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY+35)/30][(int)(ghostX+29)/30]=='1') && (loadedMap[(int)(ghostY-5)/30][(int)(ghostX+29)/30]=='1' || loadedMap[(int)(ghostY-5)/30][(int)(ghostX)/30]=='1'))
+            return true;
+    }
+    else{
+        if((loadedMap[(int)(ghostY+29)/30][(int)(ghostX+35)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX+35)/30]=='1') && (loadedMap[(int)(ghostY+29)/30][(int)(ghostX-5)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX-5)/30]=='1'))
+            return true;
+    }
+    return false;
+}
+/*    ***Removed in favor of isStraight. Better to only test whether or not the ghost needs to move straight***
+bool modify::isIntersection(){ //If there are no walls touching any corner of the ghost. Leaves a leeway of one pixel
     int i = 0;
-    if(loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY+31)/30][(int)(ghostX+29)/30]=='1')
+    if(loadedMap[(int)(ghostY+28)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX)/30]=='1')
         i++;
-    if(loadedMap[(int)(ghostY-1)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY-1)/30][(int)(ghostX+29)/30]=='1')
+    if(loadedMap[(int)(ghostY+28)/30][(int)(ghostX+28)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX+28)/30]=='1')
         i++;
-    if(loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]=='1' || loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30-1]=='1')
+    if(loadedMap[(int)(ghostY)/30][(int)(ghostX)/30]=='1' || loadedMap[(int)(ghostY)/30][(int)(ghostX+28)/30-1]=='1')
         i++;
-    if(loadedMap[(int)(ghostY)/30][(int)(ghostX+31)/30]=='1' || loadedMap[(int)(ghostY+29)/30][(int)(ghostX+31)/30]=='1')
+    if(loadedMap[(int)(ghostY+28)/30][(int)(ghostX+28)/30]=='1' || loadedMap[(int)(ghostY+28)/30][(int)(ghostX)/30]=='1')
         i++;
     return i < 2;
 }
+*/
 
 int modify::findOpenSpace(){
-    if(loadedMap[(int)(ghostY-1)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY-1)/30][(int)(ghostX+29)/30]!='1' && pastDirection!=3)
+    if(loadedMap[(int)(ghostY-5)/30][(int)(ghostX+2)/30]!='1' && loadedMap[(int)(ghostY-5)/30][(int)(ghostX+27)/30]!='1' && pastDirection!=3)
         return 1;
-    else if(loadedMap[(int)(ghostY+31)/30][(int)(ghostX)/30]!='1' && loadedMap[(int)(ghostY+31)/30+1][(int)(ghostX+29)/30]!='1' && pastDirection!=1)
+    else if(loadedMap[(int)(ghostY+35)/30][(int)(ghostX+2)/30]!='1' && loadedMap[(int)(ghostY+35)/30+1][(int)(ghostX+27)/30]!='1' && pastDirection!=1)
         return 3;
-    else if(loadedMap[(int)(ghostY)/30][(int)(ghostX-1)/30]!='1' && loadedMap[(int)(ghostY+29)/30][(int)(ghostX-1)/30-1]!='1' && pastDirection!=2)
+    else if(loadedMap[(int)(ghostY+2)/30][(int)(ghostX-5)/30]!='1' && loadedMap[(int)(ghostY+27)/30][(int)(ghostX-5)/30-1]!='1' && pastDirection!=2)
         return 4;
     else
         return 2;
@@ -226,7 +272,9 @@ void modify::movePac(char* direction){
 }
 
 void modify::moveGhost(){
-    float speedFrame = ((int)elapsedTime.asMicroseconds()/1000)/5.0/1.2;
+    float speedFrame = ((int)elapsedTime.asMicroseconds()/1000)/5.0/1.5;
+    if(speedFrame>5)
+        speedFrame=.1;
     if(pastDirection == 1)
         ghostY-=(speed*speedFrame);
     else if(pastDirection == 2)
@@ -239,30 +287,37 @@ void modify::moveGhost(){
 
 void modify::checkLevel(){
     win = true;
-//    if((int)ghostX/30 == (int)pacX/30 && (int)ghostY/30 == (int)pacY/30)
-//        win = false;
-//    else
+    if((int)ghostX/30 == (int)pacX/30 && (int)ghostY/30 == (int)pacY/30){
+        win = true;
+        sf::Clock clock;
+        int start = clock.getElapsedTime().asSeconds();
+        int end = clock.getElapsedTime().asSeconds();
+        while(end-start<1){
+            end =clock.getElapsedTime().asSeconds();
+        }
+    }
+    else
         for (int j=1; j<21; j++)
             for (int i=1; i<21; i++)
             {
-                if(this->loadedMap[i][j]=='3')
+                if(loadedMap[i][j]=='3')
                     win = false;
             }
 }
 
 void modify::modifyLevel(){
-    if(this->levelNumber==2){
+    if(levelNumber==2){
         pacLevel.open("Resources/level2.rtf");
     }
     for (int j=1; j<21; j++)
         for (int i=1; j<21; i++)
         {
             pacLevel >> this->loadedMap[i][j];
-            if(this->loadedMap[i][j]==2){
-                this->pacX = 30*i;
-                this->pacY = 30*j;
+            if(loadedMap[i][j]==2){
+                pacX = 30*i;
+                pacY = 30*j;
             }
         }
-    this->win = false;
-    this->levelNumber++;
+    win = false;
+    levelNumber++;
 }

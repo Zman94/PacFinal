@@ -40,8 +40,9 @@ private:
     void PacAction();
     void GhostAction();
     void checkLevel();
+    void newDirection();
     
-    bool isIntersection();
+    bool isStraight();
     int findOpenSpace();
     void moveGhost();
     
@@ -51,7 +52,7 @@ private:
     const int speed = 1;
     int levelNumber;
     bool moveRight, moveLeft, moveUp, moveDown;
-//    bool atIntersection = false;
+    bool atIntersection = false;
 };
 
 #endif /* defined(__PacFinal__modify__) */

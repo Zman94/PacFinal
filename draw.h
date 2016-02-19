@@ -21,7 +21,7 @@ public:
 private:
     void drawMap(sf::RenderWindow &mainWindow, const char (&loadedMap)[20][20], bool gameOver);
     void drawPac(sf::RenderWindow &mainWindow, const int pacX, const int pacY, const bool pacDirection[4], bool switchPac, bool isPacOpen);
-    void drawGhost(sf::RenderWindow &mainWindow, const int ghostX, const int ghostY);
+    void drawGhost(sf::RenderWindow &mainWindow, const int ghostX, const int ghostY, const modify *level);
     void wallType(int n, int m, char const (&map)[20][20], sf::RenderWindow &mainWindow);
     void drawPebble(sf::RenderWindow &mainWindow, int n, int m);
     void drawPower(sf::RenderWindow &mainWindow, int n, int m);
