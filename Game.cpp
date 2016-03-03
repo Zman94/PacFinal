@@ -39,7 +39,7 @@ void Game::Start(){
 void Game::ShowMenu(){
     sf::Event event;
     sf::Texture image;
-    if (!image.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/Pac_Start.png"))
+    if (!image.loadFromFile(resourcePath()+"Pac_Start.png"))
         return;
     sf::Sprite sprite(image);
     sprite.setPosition(72.5, 0);

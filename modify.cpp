@@ -10,7 +10,7 @@
 #include <ctime>
 
 modify::modify(){
-    pacLevel.open("/Users/Zach/Projects/PacFinal/PacFinal/myLevel1.txt");
+    pacLevel.open(resourcePath()+"mylevel1.txt");
     if(pacLevel.fail())
         return;
     for (int j=0; j<20; j++)

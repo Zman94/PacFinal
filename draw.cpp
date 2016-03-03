@@ -9,17 +9,17 @@
 #include "draw.h"
 
 draw::draw(){
-    if (!wall.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/Pacman Wall Final.png"))
+    if (!wall.loadFromFile(resourcePath()+"Pacman Wall Final.png"))
         return;
-    if (!pebble.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/Pebble.jpeg"))
+    if (!pebble.loadFromFile(resourcePath()+"Pebble.jpeg"))
         return;
-    if (!pacClosed.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/PacClosed.jpeg"))
+    if (!pacClosed.loadFromFile(resourcePath()+"PacClosed.jpeg"))
         return;
-    if (!pacOpen.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/PacOpen.jpg"))
+    if (!pacOpen.loadFromFile(resourcePath()+"PacOpen.jpg"))
         return;
-    if (!endFont.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/Minecraft.ttf"))
+    if (!endFont.loadFromFile(resourcePath()+"Minecraft.ttf"))
         return;
-    if(!blinky.loadFromFile("/Users/Zach/Projects/PacFinal/PacFinal/Blinky.jpg"))
+    if(!blinky.loadFromFile(resourcePath()+"Blinky.png"))
         return;
     endText.setFont(endFont);
     endText.setPosition(300,263);
